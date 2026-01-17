@@ -1,0 +1,2 @@
+NAME: Enter name of person
+AGE: Enter age of person
