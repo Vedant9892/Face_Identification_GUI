@@ -6,7 +6,7 @@ import os
 
 def load_embeddings():
     """Load embeddings from all person folders in Trained Model/"""
-    trained_model_dir = os.path.join(os.path.dirname(__file__), "Trained Model")
+    trained_model_dir = os.path.join(os.path.dirname(__file__), "Trained_Model")
     
     if not os.path.exists(trained_model_dir):
         print(f"Error: Trained Model directory not found at {trained_model_dir}")
@@ -79,6 +79,11 @@ def recognize_faces():
 
     print("Starting Live Recognition... Press 'q' to quit.")
 
+    # Create resizable window with proper flags
+    window_name = 'Live Face Recognition - Drag corners to resize (Press Q to quit)'
+    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
+    cv2.resizeWindow(window_name, 1280, 720)  # Set initial size
+
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -139,15 +144,15 @@ def recognize_faces():
                             cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
                             
                             # Display Name and Age ABOVE the box
-                            cv2.putText(frame, display_name, (x, y-30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
-                            cv2.putText(frame, f"Age: {age}", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                            cv2.putText(frame, display_name, (x, y-30), cv2.FONT_HERSHEY_TRIPLEX, 0.7, color, 2)
+                            cv2.putText(frame, f"Age: {age}", (x, y-10), cv2.FONT_HERSHEY_TRIPLEX, 0.5, color, 2)
                         else:
                             # User Request: Unknown = Green
                             color = (0, 255, 0)
                             
                             # Draw Box
                             cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
-                            cv2.putText(frame, "Unknown", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+                            cv2.putText(frame, "Unknown", (x, y-10), cv2.FONT_HERSHEY_TRIPLEX, 0.7, color, 2)
 
                     except Exception as e:
                         # Face extraction/resizing might fail if face is too small or near edge
@@ -157,7 +162,7 @@ def recognize_faces():
             # MTCNN detection might fail sometimes, just continue
             pass
 
-        cv2.imshow('Live Face Recognition', frame)
+        cv2.imshow(window_name, frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
