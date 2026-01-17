@@ -1,0 +1,169 @@
+import cv2
+import numpy as np
+from mtcnn import MTCNN
+from keras_facenet import FaceNet
+import os
+
+def load_embeddings():
+    """Load embeddings from all person folders in Trained Model/"""
+    trained_model_dir = os.path.join(os.path.dirname(__file__), "Trained Model")
+    
+    if not os.path.exists(trained_model_dir):
+        print(f"Error: Trained Model directory not found at {trained_model_dir}")
+        return None, None, None
+    
+    all_embeddings = []
+    all_folder_names = []
+    person_info = {}  # Maps folder_name to (display_name, age)
+    
+    # Scan each person folder
+    for person_folder in os.listdir(trained_model_dir):
+        person_path = os.path.join(trained_model_dir, person_folder)
+        
+        if not os.path.isdir(person_path):
+            continue
+        
+        encodings_file = os.path.join(person_path, "encodings.npz")
+        
+        if os.path.exists(encodings_file):
+            try:
+                data = np.load(encodings_file)
+                embeddings = data['embeddings']
+                
+                # Get folder name (for matching)
+                folder_name = str(data.get('folder_name', data.get('name', person_folder)))
+                
+                # Get display info
+                display_name = str(data.get('name', folder_name))
+                age = str(data.get('age', 'N/A'))
+                
+                # Store person info
+                person_info[folder_name] = (display_name, age)
+                
+                # Add all embeddings for this person
+                for embedding in embeddings:
+                    all_embeddings.append(embedding)
+                    all_folder_names.append(folder_name)
+                    
+                print(f"Loaded {len(embeddings)} embeddings for '{display_name}' (Age: {age})")
+            except Exception as e:
+                print(f"Error loading {encodings_file}: {e}")
+    
+    if not all_embeddings:
+        print("Error: No trained models found. Please run train_faces.py first.")
+        return None, None, None
+    
+    print(f"Total loaded: {len(all_embeddings)} embeddings from {len(person_info)} people")
+    return np.array(all_embeddings), np.array(all_folder_names), person_info
+
+def recognize_faces():
+    # Load stored embeddings and person info
+    known_embeddings, known_folder_names, person_info = load_embeddings()
+    if known_embeddings is None:
+        return
+
+    # Initialize FaceNet and MTCNN
+    try:
+        embedder = FaceNet()
+        detector = MTCNN()
+    except Exception as e:
+        print(f"Error initializing models: {e}")
+        return
+
+    # Open Webcam
+    # cv2.CAP_DSHOW is often needed on Windows to avoid "can't grab frame" errors
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    if not cap.isOpened():
+        print("Error: Could not open webcam.")
+        return
+
+    print("Starting Live Recognition... Press 'q' to quit.")
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # Convert to RGB for detection
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        
+        try:
+            # Detect faces
+            results = detector.detect_faces(rgb_frame)
+
+            # Only process if faces are detected
+            if results:
+                for result in results:
+                    x, y, w, h = result['box']
+                    x, y = abs(x), abs(y) # Fix negative coordinates
+                    
+                    # Extract Face
+                    face = rgb_frame[y:y+h, x:x+w]
+                    
+                    try:
+                        # Resize for FaceNet
+                        face = cv2.resize(face, (160, 160))
+                        
+                        # Get Embedding
+                        face_pixels = np.expand_dims(face, axis=0)
+                        embedding = embedder.embeddings(face_pixels)[0]
+                        
+                        # Compare with known embeddings
+                        # Calculate Euclidean distances
+                        distances = []
+                        for known_emb in known_embeddings:
+                            dist = np.linalg.norm(embedding - known_emb)
+                            distances.append(dist)
+                        
+                        distances = np.array(distances)
+                        min_dist_idx = np.argmin(distances)
+                        min_dist = distances[min_dist_idx]
+                        
+                        # Threshold for recognition (increased to 0.85 for more lenient matching)
+                        # Lower distance = better match, so higher threshold = more permissive
+                        if min_dist < 0.85:  
+                            folder_name = known_folder_names[min_dist_idx]
+                            
+                            # Get display name and age
+                            if folder_name in person_info:
+                                display_name, age = person_info[folder_name]
+                            else:
+                                display_name = folder_name
+                                age = "N/A"
+                            
+                            confidence = f"{min_dist:.2f}"
+                            # User Request: Identified = Red
+                            color = (0, 0, 255) 
+                            
+                            # Draw Box
+                            cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
+                            
+                            # Display Name and Age ABOVE the box
+                            cv2.putText(frame, display_name, (x, y-30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+                            cv2.putText(frame, f"Age: {age}", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                        else:
+                            # User Request: Unknown = Green
+                            color = (0, 255, 0)
+                            
+                            # Draw Box
+                            cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
+                            cv2.putText(frame, "Unknown", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+
+                    except Exception as e:
+                        # Face extraction/resizing might fail if face is too small or near edge
+                        continue
+        
+        except Exception as e:
+            # MTCNN detection might fail sometimes, just continue
+            pass
+
+        cv2.imshow('Live Face Recognition', frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    recognize_faces()
