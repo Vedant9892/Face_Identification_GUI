@@ -17,6 +17,7 @@ def load_embeddings():
     all_folder_names = []
     person_info = {}  # Maps folder_name to (display_name, age)
     
+    # Scan each person folder
     for person_folder in os.listdir(trained_model_dir):
         person_path = os.path.join(trained_model_dir, person_folder)
         
@@ -63,7 +64,7 @@ def recognize_video(video_path):
     if known_embeddings is None:
         return
 
-
+    # Initialize FaceNet and MTCNN
     try:
         embedder = FaceNet()
         detector = MTCNN()
@@ -167,11 +168,14 @@ def recognize_video(video_path):
         # Lower value = faster playback, higher value = slower/more accurate detection
         if cv2.waitKey(30) & 0xFF == ord('q'):  # 30ms = ~33 FPS
             break
+        
+        # Detect if window was closed with X button
+        if cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) < 1:
+            break
 
     cap.release()
     cv2.destroyAllWindows()
     print("Video processing complete.")
-    print("="*60 + "\n")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
