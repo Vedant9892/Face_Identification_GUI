@@ -17,7 +17,6 @@ def load_embeddings():
     all_folder_names = []
     person_info = {}  # Maps folder_name to (display_name, age)
     
-    # Scan each person folder
     for person_folder in os.listdir(trained_model_dir):
         person_path = os.path.join(trained_model_dir, person_folder)
         
@@ -64,7 +63,7 @@ def recognize_video(video_path):
     if known_embeddings is None:
         return
 
-    # Initialize FaceNet and MTCNN
+
     try:
         embedder = FaceNet()
         detector = MTCNN()
@@ -172,6 +171,7 @@ def recognize_video(video_path):
     cap.release()
     cv2.destroyAllWindows()
     print("Video processing complete.")
+    print("="*60 + "\n")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
