@@ -85,6 +85,8 @@ def diagnose_recognition():
     print("- Position face in camera")
     print("- You'll see distance scores for each person")
     print("- Lower distance = better match")
+    print("This is only for diagnostic purposes")
+    print("Works only on live camera")
     print("- Press 'q' to quit")
     print("="*60 + "\n")
 
