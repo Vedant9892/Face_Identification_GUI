@@ -319,7 +319,7 @@ class FaceRecognitionGUI(tk.Tk):
             )
             return False
         
-      
+        # Check if there are any person folders with encodings
         found_models = False
         for item in os.listdir(trained_model_dir):
             person_path = os.path.join(trained_model_dir, item)
