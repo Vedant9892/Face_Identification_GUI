@@ -98,8 +98,6 @@ def recognize_video(video_path):
         try:
             # Detect faces
             results = detector.detect_faces(rgb_frame)
-
-            # Only process if faces are detected
             if results:
                 for result in results:
                     x, y, w, h = result['box']
@@ -164,9 +162,8 @@ def recognize_video(video_path):
 
         cv2.imshow(window_name, frame)
 
-        # Adjust wait time for smoother playback
-        # Lower value = faster playback, higher value = slower/more accurate detection
-        if cv2.waitKey(30) & 0xFF == ord('q'):  # 30ms = ~33 FPS
+        
+        if cv2.waitKey(25) & 0xFF == ord('q'):  # 30ms = ~33 FPS
             break
         
         # Detect if window was closed with X button
