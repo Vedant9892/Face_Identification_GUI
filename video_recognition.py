@@ -59,7 +59,7 @@ def load_embeddings():
 
 def recognize_video(video_path):
     """Process video file for face recognition"""
-    # Load stored embeddings and person info
+   
     known_embeddings, known_folder_names, person_info = load_embeddings()
     if known_embeddings is None:
         return
