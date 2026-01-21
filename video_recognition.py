@@ -101,7 +101,7 @@ def recognize_video(video_path):
             if results:
                 for result in results:
                     x, y, w, h = result['box']
-                    x, y = abs(x), abs(y) # Fix negative coordinates
+                    x, y = abs(x), abs(y) 
                     
                     # Extract Face
                     face = rgb_frame[y:y+h, x:x+w]
