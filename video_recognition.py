@@ -17,7 +17,7 @@ def load_embeddings():
     all_folder_names = []
     person_info = {}  
     
-    # Scan each person folder
+   
     for person_folder in os.listdir(trained_model_dir):
         person_path = os.path.join(trained_model_dir, person_folder)
         
