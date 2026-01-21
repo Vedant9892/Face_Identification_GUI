@@ -114,7 +114,7 @@ def recognize_video(video_path):
                         face_pixels = np.expand_dims(face, axis=0)
                         embedding = embedder.embeddings(face_pixels)[0]
                         
-                        # Compare with known embeddings
+                        
                         distances = []
                         for known_emb in known_embeddings:
                             dist = np.linalg.norm(embedding - known_emb)
