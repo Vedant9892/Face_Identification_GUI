@@ -64,7 +64,7 @@ def recognize_video(video_path):
     if known_embeddings is None:
         return
 
-    # Initialize FaceNet and MTCNN
+
     try:
         embedder = FaceNet()
         detector = MTCNN()
