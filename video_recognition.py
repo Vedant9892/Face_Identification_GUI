@@ -15,7 +15,7 @@ def load_embeddings():
     
     all_embeddings = []
     all_folder_names = []
-    person_info = {}  # Maps folder_name to (display_name, age)
+    person_info = {}  
     
     # Scan each person folder
     for person_folder in os.listdir(trained_model_dir):
