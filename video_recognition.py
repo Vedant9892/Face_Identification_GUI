@@ -34,7 +34,7 @@ def load_embeddings():
                 
                 folder_name = str(data.get('folder_name', data.get('name', person_folder)))
                 
-                # Get display info
+                # Get display information and new data
                 display_name = str(data.get('name', folder_name))
                 age = str(data.get('age', 'N/A'))
                 
