@@ -17,7 +17,7 @@ def load_embeddings():
     all_folder_names = []
     person_info = {}  
     
-   
+    # Scan each person folder
     for person_folder in os.listdir(trained_model_dir):
         person_path = os.path.join(trained_model_dir, person_folder)
         
@@ -31,7 +31,7 @@ def load_embeddings():
                 data = np.load(encodings_file)
                 embeddings = data['embeddings']
                 
-                # Get folder name (for matching)
+                
                 folder_name = str(data.get('folder_name', data.get('name', person_folder)))
                 
                 # Get display info
