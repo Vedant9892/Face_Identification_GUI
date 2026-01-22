@@ -175,7 +175,7 @@ def recognize_faces():
         except Exception as e:
             gps_text = "GPS: N/A"
         
-        # Get current date and time
+       
         current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         frame_height, frame_width = frame.shape[:2]
