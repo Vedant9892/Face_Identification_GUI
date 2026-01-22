@@ -124,8 +124,7 @@ def recognize_faces():
                         distances = np.array(distances)
                         min_dist_idx = np.argmin(distances)
                         min_dist = distances[min_dist_idx]
-                        
-                    
+
                         if min_dist < 0.85:  
                             folder_name = known_folder_names[min_dist_idx]
                             
@@ -159,7 +158,7 @@ def recognize_faces():
                         continue
         
         except Exception as e:
-            # MTCNN detection might fail sometimes, just continue
+     
             pass
 
         # Get GPS coordinates (cached for performance)
