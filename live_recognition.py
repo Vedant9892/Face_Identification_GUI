@@ -206,6 +206,7 @@ def recognize_faces():
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         
+        # Detect if window was closed with X button
         if cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) < 1:
             break
 
