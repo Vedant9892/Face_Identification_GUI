@@ -180,8 +180,6 @@ def recognize_faces():
         
         # Get frame dimensions for positioning
         frame_height, frame_width = frame.shape[:2]
-        
-        # Create semi-transparent overlay for text background (bottom-right)
         overlay = frame.copy()
         overlay_width = 280
         overlay_height = 50
