@@ -177,8 +177,7 @@ def recognize_faces():
         
         # Get current date and time
         current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Get frame dimensions for positioning
+
         frame_height, frame_width = frame.shape[:2]
         overlay = frame.copy()
         overlay_width = 280
