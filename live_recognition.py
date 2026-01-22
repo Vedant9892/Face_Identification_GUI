@@ -154,7 +154,7 @@ def recognize_faces():
                             cv2.putText(frame, "Unknown", (x, y-10), cv2.FONT_HERSHEY_TRIPLEX, 0.7, color, 2)
 
                     except Exception as e:
-                        # Face extraction/resizing might fail if face is too small or near edge
+                        
                         continue
         
         except Exception as e:
