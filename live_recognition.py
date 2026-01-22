@@ -129,7 +129,7 @@ def recognize_faces():
                         if min_dist < 0.85:  
                             folder_name = known_folder_names[min_dist_idx]
                             
-                            # Get display name and age
+                        
                             if folder_name in person_info:
                                 display_name, age = person_info[folder_name]
                             else:
