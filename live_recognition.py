@@ -161,7 +161,7 @@ def recognize_faces():
      
             pass
 
-        # Get GPS coordinates (cached for performance)
+    
         try:
             if not hasattr(recognize_faces, 'gps_coords'):
                 # Try to get GPS from IP geolocation (only once)
