@@ -126,8 +126,7 @@ def recognize_faces():
                         min_dist_idx = np.argmin(distances)
                         min_dist = distances[min_dist_idx]
                         
-                        # Threshold for recognition (increased to 0.85 for more lenient matching)
-                        # Lower distance = better match, so higher threshold = more permissive
+                    
                         if min_dist < 0.85:  
                             folder_name = known_folder_names[min_dist_idx]
                             
