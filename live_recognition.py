@@ -3,6 +3,8 @@ import numpy as np
 from mtcnn import MTCNN
 from keras_facenet import FaceNet
 import os
+from datetime import datetime
+import geocoder
 
 def load_embeddings():
     """Load embeddings from all person folders in Trained Model/"""
@@ -162,11 +164,47 @@ def recognize_faces():
             # MTCNN detection might fail sometimes, just continue
             pass
 
+        # Get GPS coordinates (cached for performance)
+        try:
+            if not hasattr(recognize_faces, 'gps_coords'):
+                # Try to get GPS from IP geolocation (only once)
+                g = geocoder.ip('me')
+                if g.ok and g.latlng:
+                    recognize_faces.gps_coords = f"GPS: {g.latlng[0]:.6f}, {g.latlng[1]:.6f}"
+                else:
+                    # Fallback to default coordinates if unable to retrieve
+                    recognize_faces.gps_coords = "GPS: N/A"
+            gps_text = recognize_faces.gps_coords
+        except Exception as e:
+            gps_text = "GPS: N/A"
+        
+        # Get current date and time
+        current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Get frame dimensions for positioning
+        frame_height, frame_width = frame.shape[:2]
+        
+        # Create semi-transparent overlay for text background (bottom-left)
+        overlay = frame.copy()
+        overlay_height = 60
+        cv2.rectangle(overlay, (0, frame_height - overlay_height), 
+                     (400, frame_height), (0, 0, 0), -1)
+        cv2.addWeighted(overlay, 0.6, frame, 0.4, 0, frame)
+        
+        # Display GPS and DateTime in bottom-left corner
+        y_offset = frame_height - 40
+        cv2.putText(frame, gps_text, (10, y_offset), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(frame, current_datetime, (10, y_offset + 25), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+
         cv2.imshow(window_name, frame)
 
+        # Check if window was closed (X button clicked) or 'q' was pressed
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         
+        # Detect if window was closed with X button
         if cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) < 1:
             break
 
