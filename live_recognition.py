@@ -184,19 +184,21 @@ def recognize_faces():
         # Get frame dimensions for positioning
         frame_height, frame_width = frame.shape[:2]
         
-        # Create semi-transparent overlay for text background (bottom-left)
+        # Create semi-transparent overlay for text background (bottom-right)
         overlay = frame.copy()
-        overlay_height = 60
-        cv2.rectangle(overlay, (0, frame_height - overlay_height), 
-                     (400, frame_height), (0, 0, 0), -1)
+        overlay_width = 280
+        overlay_height = 50
+        cv2.rectangle(overlay, (frame_width - overlay_width, frame_height - overlay_height), 
+                     (frame_width, frame_height), (0, 0, 0), -1)
         cv2.addWeighted(overlay, 0.6, frame, 0.4, 0, frame)
         
-        # Display GPS and DateTime in bottom-left corner
-        y_offset = frame_height - 40
-        cv2.putText(frame, gps_text, (10, y_offset), 
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-        cv2.putText(frame, current_datetime, (10, y_offset + 25), 
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+        # Display GPS and DateTime in bottom-right corner (smaller text)
+        y_offset = frame_height - 32
+        x_offset = frame_width - overlay_width + 10
+        cv2.putText(frame, gps_text, (x_offset, y_offset), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(frame, current_datetime, (x_offset, y_offset + 20), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
 
         cv2.imshow(window_name, frame)
 
