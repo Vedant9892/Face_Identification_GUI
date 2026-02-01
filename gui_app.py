@@ -5,7 +5,6 @@ import os
 import sys
 from config import TRAINED_MODEL_DIR
 
-
 class FaceRecognitionGUI(tk.Tk):
     def __init__(self):
         super().__init__()
