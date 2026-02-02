@@ -65,56 +65,104 @@ def recognize_faces():
     cv2.resizeWindow(window_name, WINDOW_INITIAL_WIDTH, WINDOW_INITIAL_HEIGHT)
     screenshot_saved = False
     screenshot_flash_counter = 0
+    
+    frame_count = 0
+    process_every_n_frames = 3
+    cached_faces = []
+    
     while True:
         ret, frame = cap.read()
         if not ret:
             break
+        
+        frame_count += 1
+        process_this_frame = (frame_count % process_every_n_frames == 0)
+        
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        try:
-            results = detector.detect_faces(rgb_frame)
-            if results:
-                for result in results:
-                    x, y, w, h = result['box']
-                    x, y = abs(x), abs(y)
-                    face = rgb_frame[y:y+h, x:x+w]
-                    try:
-                        face = cv2.resize(face, (160, 160))
-                        face_pixels = np.expand_dims(face, axis=0)
-                        embedding = embedder.embeddings(face_pixels)[0]
-                        folder_name, min_dist = find_best_match(
-                            embedding, known_embeddings, known_folder_names, RECOGNITION_THRESHOLD
-                        )
-                        if folder_name is not None:
-                            if folder_name in person_info:
-                                display_name, age = person_info[folder_name]
+        
+        if process_this_frame:
+            cached_faces = []
+            try:
+                results = detector.detect_faces(rgb_frame)
+                if results:
+                    for result in results:
+                        x, y, w, h = result['box']
+                        x, y = abs(x), abs(y)
+                        face = rgb_frame[y:y+h, x:x+w]
+                        try:
+                            face = cv2.resize(face, (160, 160))
+                            face_pixels = np.expand_dims(face, axis=0)
+                            embedding = embedder.embeddings(face_pixels)[0]
+                            folder_name, min_dist = find_best_match(
+                                embedding, known_embeddings, known_folder_names, RECOGNITION_THRESHOLD
+                            )
+                            if folder_name is not None:
+                                if folder_name in person_info:
+                                    display_name, age = person_info[folder_name]
+                                else:
+                                    display_name = folder_name
+                                    age = "N/A"
+                                color = (0, 255, 100)
+                                shadow_color = (0, 180, 70)
+                                cv2.rectangle(frame, (x-2, y-2), (x+w+2, y+h+2), shadow_color, 3)
+                                cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
+                                label_bg_height = 30
+                                cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), (0, 180, 70), -1)
+                                cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), color, 2)
+                                cv2.putText(frame, display_name, (x+5, y-10), cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
+                                age_badge_width = 60
+                                cv2.rectangle(frame, (x, y+h), (x+age_badge_width, y+h+25), (0, 180, 70), -1)
+                                cv2.rectangle(frame, (x, y+h), (x+age_badge_width, y+h+25), color, 2)
+                                cv2.putText(frame, f"Age:{age}", (x+3, y+h+18), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA)
                             else:
-                                display_name = folder_name
-                                age = "N/A"
-                            color = (0, 255, 100)
-                            shadow_color = (0, 180, 70)
-                            cv2.rectangle(frame, (x-2, y-2), (x+w+2, y+h+2), shadow_color, 3)
-                            cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
-                            label_bg_height = 30
-                            cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), (0, 180, 70), -1)
-                            cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), color, 2)
-                            cv2.putText(frame, display_name, (x+5, y-10), cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
-                            age_badge_width = 60
-                            cv2.rectangle(frame, (x, y+h), (x+age_badge_width, y+h+25), (0, 180, 70), -1)
-                            cv2.rectangle(frame, (x, y+h), (x+age_badge_width, y+h+25), color, 2)
-                            cv2.putText(frame, f"Age:{age}", (x+3, y+h+18), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA)
-                        else:
-                            color = (255, 100, 100)
-                            shadow_color = (180, 70, 70)
-                            cv2.rectangle(frame, (x-2, y-2), (x+w+2, y+h+2), shadow_color, 3)
-                            cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
-                            label_bg_height = 30
-                            cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), (180, 70, 70), -1)
-                            cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), color, 2)
-                            cv2.putText(frame, "Unknown", (x+5, y-10), cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
-                    except Exception:
-                        continue
-        except Exception:
-            pass
+                                color = (255, 100, 100)
+                                shadow_color = (180, 70, 70)
+                                cv2.rectangle(frame, (x-2, y-2), (x+w+2, y+h+2), shadow_color, 3)
+                                cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
+                                label_bg_height = 30
+                                cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), (180, 70, 70), -1)
+                                cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), color, 2)
+                                cv2.putText(frame, "Unknown", (x+5, y-10), cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
+                            
+                            cached_faces.append({
+                                'box': (x, y, w, h),
+                                'name': display_name if folder_name is not None else "Unknown",
+                                'age': age if folder_name is not None else "N/A",
+                                'is_known': folder_name is not None
+                            })
+                        except Exception:
+                            continue
+            except Exception:
+                pass
+        else:
+            for face_data in cached_faces:
+                x, y, w, h = face_data['box']
+                display_name = face_data['name']
+                age = face_data['age']
+                is_known = face_data['is_known']
+                
+                if is_known:
+                    color = (0, 255, 100)
+                    shadow_color = (0, 180, 70)
+                    cv2.rectangle(frame, (x-2, y-2), (x+w+2, y+h+2), shadow_color, 3)
+                    cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
+                    label_bg_height = 30
+                    cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), (0, 180, 70), -1)
+                    cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), color, 2)
+                    cv2.putText(frame, display_name, (x+5, y-10), cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
+                    age_badge_width = 60
+                    cv2.rectangle(frame, (x, y+h), (x+age_badge_width, y+h+25), (0, 180, 70), -1)
+                    cv2.rectangle(frame, (x, y+h), (x+age_badge_width, y+h+25), color, 2)
+                    cv2.putText(frame, f"Age:{age}", (x+3, y+h+18), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA)
+                else:
+                    color = (255, 100, 100)
+                    shadow_color = (180, 70, 70)
+                    cv2.rectangle(frame, (x-2, y-2), (x+w+2, y+h+2), shadow_color, 3)
+                    cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
+                    label_bg_height = 30
+                    cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), (180, 70, 70), -1)
+                    cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), color, 2)
+                    cv2.putText(frame, "Unknown", (x+5, y-10), cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
         try:
             if not hasattr(recognize_faces, 'gps_coords'):
                 g = geocoder.ip('me')
