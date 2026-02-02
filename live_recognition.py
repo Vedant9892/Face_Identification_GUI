@@ -90,14 +90,27 @@ def recognize_faces():
                             else:
                                 display_name = folder_name
                                 age = "N/A"
-                            color = (0, 0, 255)
+                            color = (0, 255, 100)
+                            shadow_color = (0, 180, 70)
+                            cv2.rectangle(frame, (x-2, y-2), (x+w+2, y+h+2), shadow_color, 3)
                             cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
-                            cv2.putText(frame, display_name, (x, y-30), cv2.FONT_HERSHEY_TRIPLEX, 0.7, color, 2)
-                            cv2.putText(frame, f"Age: {age}", (x, y-10), cv2.FONT_HERSHEY_TRIPLEX, 0.5, color, 2)
+                            label_bg_height = 30
+                            cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), (0, 180, 70), -1)
+                            cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), color, 2)
+                            cv2.putText(frame, display_name, (x+5, y-10), cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
+                            age_badge_width = 60
+                            cv2.rectangle(frame, (x, y+h), (x+age_badge_width, y+h+25), (0, 180, 70), -1)
+                            cv2.rectangle(frame, (x, y+h), (x+age_badge_width, y+h+25), color, 2)
+                            cv2.putText(frame, f"Age:{age}", (x+3, y+h+18), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA)
                         else:
-                            color = (0, 255, 0)
+                            color = (255, 100, 100)
+                            shadow_color = (180, 70, 70)
+                            cv2.rectangle(frame, (x-2, y-2), (x+w+2, y+h+2), shadow_color, 3)
                             cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
-                            cv2.putText(frame, "Unknown", (x, y-10), cv2.FONT_HERSHEY_TRIPLEX, 0.7, color, 2)
+                            label_bg_height = 30
+                            cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), (180, 70, 70), -1)
+                            cv2.rectangle(frame, (x, y-label_bg_height), (x+w, y), color, 2)
+                            cv2.putText(frame, "Unknown", (x+5, y-10), cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
                     except Exception:
                         continue
         except Exception:
@@ -114,20 +127,42 @@ def recognize_faces():
             gps_text = "GPS: N/A"
         current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         frame_height, frame_width = frame.shape[:2]
-        overlay = frame.copy()
-        overlay_width = 280
-        overlay_height = 50
-        cv2.rectangle(overlay, (frame_width - overlay_width, frame_height - overlay_height),
-                     (frame_width, frame_height), (0, 0, 0), -1)
-        cv2.addWeighted(overlay, 0.6, frame, 0.4, 0, frame)
-        y_offset = frame_height - 32
-        x_offset = frame_width - overlay_width + 10
-        cv2.putText(frame, gps_text, (x_offset, y_offset),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
-        cv2.putText(frame, current_datetime, (x_offset, y_offset + 20),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
-        cv2.putText(frame, "Press 'S' to save screenshot", (10, 25),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2, cv2.LINE_AA)
+        
+        top_bar_height = 40
+        top_overlay = frame.copy()
+        cv2.rectangle(top_overlay, (0, 0), (frame_width, top_bar_height), (15, 15, 15), -1)
+        cv2.addWeighted(top_overlay, 0.7, frame, 0.3, 0, frame)
+        cv2.line(frame, (0, top_bar_height-1), (frame_width, top_bar_height-1), (0, 255, 200), 2)
+        
+        icon_color = (0, 255, 200)
+        cv2.circle(frame, (15, 20), 6, icon_color, -1)
+        cv2.putText(frame, "LIVE", (28, 27), cv2.FONT_HERSHEY_DUPLEX, 0.5, icon_color, 1, cv2.LINE_AA)
+        
+        screenshot_text = "Press 'S' to Capture"
+        text_size = cv2.getTextSize(screenshot_text, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)[0]
+        text_x = frame_width - text_size[0] - 15
+        cv2.putText(frame, screenshot_text, (text_x, 27), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (100, 200, 255), 1, cv2.LINE_AA)
+        
+        info_panel_width = 320
+        info_panel_height = 75
+        panel_x = frame_width - info_panel_width - 10
+        panel_y = frame_height - info_panel_height - 10
+        
+        bottom_overlay = frame.copy()
+        cv2.rectangle(bottom_overlay, (panel_x, panel_y), (frame_width - 10, frame_height - 10), (20, 20, 20), -1)
+        cv2.addWeighted(bottom_overlay, 0.75, frame, 0.25, 0, frame)
+        
+        cv2.rectangle(frame, (panel_x, panel_y), (frame_width - 10, frame_height - 10), (0, 200, 255), 2)
+        cv2.line(frame, (panel_x, panel_y+30), (frame_width - 10, panel_y+30), (40, 40, 40), 1)
+        
+        cv2.circle(frame, (panel_x + 15, panel_y + 15), 4, (100, 200, 255), -1)
+        cv2.putText(frame, "GPS", (panel_x + 25, panel_y + 20), cv2.FONT_HERSHEY_DUPLEX, 0.4, (100, 200, 255), 1, cv2.LINE_AA)
+        gps_coords_only = gps_text.replace("GPS: ", "")
+        cv2.putText(frame, gps_coords_only, (panel_x + 15, panel_y + 48), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 200, 200), 1, cv2.LINE_AA)
+        
+        cv2.circle(frame, (panel_x + 15, panel_y + 58), 4, (255, 150, 100), -1)
+        cv2.putText(frame, "TIME", (panel_x + 25, panel_y + 63), cv2.FONT_HERSHEY_DUPLEX, 0.4, (255, 150, 100), 1, cv2.LINE_AA)
+        cv2.putText(frame, current_datetime, (panel_x + 70, panel_y + 63), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 200, 200), 1, cv2.LINE_AA)
         if screenshot_flash_counter > 0:
             flash_overlay = frame.copy()
             cv2.rectangle(flash_overlay, (0, 0), (frame_width, frame_height), (255, 255, 255), -1)
