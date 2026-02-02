@@ -4,7 +4,7 @@ from mtcnn import MTCNN
 from keras_facenet import FaceNet
 from datetime import datetime
 import geocoder
-from config import RECOGNITION_THRESHOLD, WINDOW_INITIAL_WIDTH, WINDOW_INITIAL_HEIGHT
+from config import TRAINED_MODEL_DIR, RECOGNITION_THRESHOLD, WINDOW_INITIAL_WIDTH, WINDOW_INITIAL_HEIGHT
 from face_utils import load_embeddings, find_best_match
 
 
