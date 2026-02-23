@@ -8,7 +8,7 @@ from config import TRAINED_MODEL_DIR
 class FaceRecognitionGUI(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Face Recognition System")
+        self.title("Face Recognition ")
         self.geometry("700x680")
         self.resizable(False, False)
         self.configure(bg="#f0f0f0")
