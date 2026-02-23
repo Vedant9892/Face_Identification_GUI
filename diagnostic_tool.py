@@ -81,7 +81,6 @@ def diagnose_recognition():
     cap.release()
     cv2.destroyAllWindows()
 
-#MAIN PUSH
 
 if __name__ == "__main__":
     diagnose_recognition()
