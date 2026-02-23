@@ -9,7 +9,7 @@ from tkinter import Tk, filedialog
 from config import TRAINED_MODEL_DIR, RECOGNITION_THRESHOLD, WINDOW_INITIAL_WIDTH, WINDOW_INITIAL_HEIGHT
 from face_utils import load_embeddings, find_best_match
 
-#live rec py
+#live
 
 def save_screenshot(frame):
     try:
