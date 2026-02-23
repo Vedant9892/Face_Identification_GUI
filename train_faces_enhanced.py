@@ -8,7 +8,6 @@ from config import FACE_IMAGES_DIR, TRAINED_MODEL_DIR
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-
 def read_person_info(person_dir, person_folder_name):
     txt_files = [f for f in os.listdir(person_dir) if f.endswith('.txt')]
     if not txt_files:
@@ -50,6 +49,8 @@ def augment_image(image):
     augmented_images.append(rotated_minus)
     return augmented_images
 
+
+#ENHANCED FACE TRAINING MODEL
 
 if __name__ == "__main__":
     if not os.path.exists(FACE_IMAGES_DIR):
