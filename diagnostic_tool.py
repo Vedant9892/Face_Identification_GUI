@@ -5,7 +5,6 @@ from keras_facenet import FaceNet
 from config import RECOGNITION_THRESHOLD
 from face_utils import load_embeddings, find_best_match
 
-
 def diagnose_recognition():
     known_embeddings, known_folder_names, person_info = load_embeddings()
     if known_embeddings is None:
@@ -82,6 +81,7 @@ def diagnose_recognition():
     cap.release()
     cv2.destroyAllWindows()
 
+#MAIN PUSH
 
 if __name__ == "__main__":
     diagnose_recognition()
