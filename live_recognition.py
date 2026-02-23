@@ -236,7 +236,7 @@ def recognize_faces():
             break
     cap.release()
     cv2.destroyAllWindows()
-
+#test push
 
 if __name__ == "__main__":
     recognize_faces()
